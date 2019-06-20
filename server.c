@@ -26,8 +26,7 @@ void commun (int sock) {
 }
 
 int main(int arg0, char **argv) {
-	int buf_size = 512;
-	char buf[buf_size];
+	char buf[BUF_SIZE];
 	int i;
 	
 	/***********************/
