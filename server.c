@@ -26,8 +26,8 @@ void commun (int sock) {
 }
 
 int main(int arg0, char **argv) {
-	char buf[BUF_SIZE];
-	int i;
+	int buf_size = 512;
+	char buf[buf_size];
 	
 	/***********************/
 	/*  クライアント情報の保存用  */
@@ -47,7 +47,7 @@ int main(int arg0, char **argv) {
 	struct sockaddr_in servAddress;
 
 	servAddress.sin_family      = PF_INET;
-	servAddress.sin_port        = (in_port_t)htons(10001);  // 待ち受けソケットのポート番号
+	servAddress.sin_port        = (in_port_t)htons(80);  // 待ち受けソケットのポート番号
 	servAddress.sin_addr.s_addr = htonl(INADDR_ANY);        // 待ち受けるための（自分の）IPアドレス（普段はINADDR_ANY）
 
 	/*********************************/
