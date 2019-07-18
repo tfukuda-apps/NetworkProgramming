@@ -14,18 +14,26 @@ void DieWithError(char *errorMessage) {
 }
 
 void commun(int sock) {
+    printf("start");
     char buf[BUF_SIZE];
+    char buf_old[BUF_SIZE];
+    char buf2[2*BUF_SIZE];
     int len_r;
 	char response[BUF_SIZE];
+	
+	buf_old[0] = '\0';
 
     while((len_r = recv(sock, buf, BUF_SIZE, 0)) > 0){
         buf[len_r] = '\0';
+        sprintf(buf2, "%s%s", buf_old, buf);
 
-        printf("%s\n", buf);
+        printf("%s", buf);
 
-        if (strstr(buf, "\r\n\r\n")) {
+        if (strstr(buf2, "\r\n\r\n")) {
             break;
         }
+		
+		sprintf(buf_old, "%s", buf);
     }
 
     if (len_r <= 0)
