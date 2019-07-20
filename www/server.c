@@ -20,21 +20,50 @@ void commun(int sock) {
     char buf_old[BUF_SIZE];
     char buf2[2*BUF_SIZE];
     int len_r;
-    char response[BUF_SIZE];
+	char response[BUF_SIZE];
 
-    buf_old[0] = '\0';
-    
+    regex_t regBuf;
+    regmatch_t regMatch[1];	
+    const char *pattern = "GET / HTTP";
+    char result[100];
+    char *uri;
+
+	buf_old[0] = '\0';
+    result[0] = '\0';
+
+    if (regcomp(&regBuf, pattern, REG_EXTENDED | REG_NEWLINE) != 0) {
+        DieWithError("regcomp failed.");
+    }
+
     while((len_r = recv(sock, buf, BUF_SIZE, 0)) > 0){
         buf[len_r] = '\0';
         sprintf(buf2, "%s%s", buf_old, buf);
 
         printf("%s", buf);
 
+        if ( regexec(&regBuf, buf2, 1, regMatch, 0) == 0 ){
+        printf("%s", buf2);
+	        int startIndex = regMatch[0].rm_so;
+	        int endIndex = regMatch[0].rm_eo;
+        	int lenReqLine = endIndex - startIndex;
+        	strncpy(result, buf2 + startIndex, lenReqLine);
+        	result[lenReqLine] = '\0';
+        }
+
         if (strstr(buf2, "\r\n\r\n")) {
             break;
         }
 		
-	sprintf(buf_old, "%s", buf);
+		sprintf(buf_old, "%s", buf);
+    }
+    regfree(&regBuf);
+
+    if (result[0] != '\0') {
+        uri = strtok(result, " ");
+        uri = strtok(NULL, " ");
+        printf("%s\n", uri);
+    } else {
+        DieWithError("No URI.");
     }
 
     if (len_r <= 0)
