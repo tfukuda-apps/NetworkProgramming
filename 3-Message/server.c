@@ -7,10 +7,11 @@
 #include <stdlib.h>
 
 #define BUF_SIZE 256
+#define MONEY_DIGIT_SIZE 10
 
-void commun(int cliSock);
 void DieWithError(char *errorMessage);
 int prepare_server_socket(int port);
+void commun(int sock);
 
 int main(int argc, char *argv[]) {
 	struct sockaddr_in clientAddress;
@@ -52,8 +53,4 @@ int prepare_server_socket(int port) {
 	bind(servSock, (struct sockaddr*)&servAddress, sizeof(servAddress));
 
     return servSock;
-}
-
-void commun(int cliSock){
-
 }
