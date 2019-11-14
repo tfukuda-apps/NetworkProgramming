@@ -15,6 +15,12 @@ void commun(int);
 void read_until_delim(int, char *, char, int);
 int get_current_balance();
 void set_current_balance(int);
+void read_certain_bytes(int, void *, int);
+
+struct money{
+    int deposit;
+    int withdraw;
+};
 
 int main(int argc, char *argv[]) {
 	// クライアントの情報を格納するための変数
@@ -95,6 +101,18 @@ void read_until_delim(int sock, char *buf, char delimiter, int max_length) {
 	buf[index_letter] = '\0';
 }
 
+// 特定のバイト数だけ受信する
+void read_certain_bytes(int sock, char *buf, int length) {
+    int len_r = 0;
+    int len_sum = 0;
+
+    while (len_sum < length) {
+        if ((len_r = recv(sock, buf + len_sum, length - len_sum, 0)) <= 0)
+			DieWithError("recv() failed");
+        len_sum += len_r;
+    }
+}
+
 // 本来はデータベースから現在の預金残高を取得
 int get_current_balance(){
 	return 1000000;
@@ -106,22 +124,18 @@ void set_current_balance(int new_balance) {
 }
 
 void commun(int sock) {
-	char buf[BUF_SIZE];						// 通信用バッファ
 	int balance = get_current_balance(); 	// 預金残高
+	struct money msgMoney;					// 受信した金額
 
-	// 区切り文字が出るまでソケットから受信→預け入れ金額をプラス
-	read_until_delim(sock, buf, '_', BUF_SIZE);
-	balance += atoi(buf);
-
-	// 区切り文字が出るまでソケットから受信→引き出し金額をマイナス
-	read_until_delim(sock, buf, '_', BUF_SIZE);
-	balance -= atoi(buf);
+	// 引き出し/預け入れの金額を受信
+    read_certain_bytes(sock, &msgMoney, (int)sizeof(msgMoney));
+	balance += msgMoney.deposit;
+	balance -= msgMoney.withdraw;
 
 	// データベースの預金残高を更新
 	set_current_balance(balance);
 
 	// クライアントへ残高を送信
-	sprintf(buf, "%d_", balance);
-	if(send(sock, buf, strlen(buf), 0) != strlen(buf))
+	if(send(sock, &balance, sizeof(balance), 0) != sizeof(balance))
 		DieWithError("send() sent a message of unexpected bytes");
 }
