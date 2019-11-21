@@ -102,7 +102,7 @@ void read_until_delim(int sock, char *buf, char delimiter, int max_length) {
 }
 
 // 特定のバイト数だけ受信する
-void read_certain_bytes(int sock, char *buf, int length) {
+void read_certain_bytes(int sock, void *buf, int length) {
     int len_r = 0;
     int len_sum = 0;
 
@@ -129,11 +129,17 @@ void commun(int sock) {
 
 	// 引き出し/預け入れの金額を受信
     read_certain_bytes(sock, &msgMoney, (int)sizeof(msgMoney));
+	msgMoney.deposit = ntohl(msgMoney.deposit);
+	msgMoney.withdraw = ntohl(msgMoney.withdraw);
+	
 	balance += msgMoney.deposit;
 	balance -= msgMoney.withdraw;
 
 	// データベースの預金残高を更新
 	set_current_balance(balance);
+
+	// ネットワークバイトオーダへ変換
+	balance = htonl(balance);
 
 	// クライアントへ残高を送信
 	if(send(sock, &balance, sizeof(balance), 0) != sizeof(balance))

@@ -15,7 +15,7 @@ struct money3{
 
 int main(int argc, char *argv[]) {
     printf("%lu バイト\n", sizeof(int));
-    printf("%lu バイト\n", sizeof(unsigned short));
+    printf("%lu バイト\n", sizeof(double));
     printf("%lu バイト\n", sizeof(struct money2));
     printf("%lu バイト\n", sizeof(struct money3));
 

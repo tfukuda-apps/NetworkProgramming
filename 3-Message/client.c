@@ -122,20 +122,20 @@ void commun(int sock) {
             // 引き出し処理
             printf("引き出す金額を入力してください > ");
             my_scanf(money, MONEY_DIGIT_SIZE);
-            msgMoney.deposit = 0;
-            msgMoney.withdraw = atoi(money);
+            msgMoney.deposit = htonl(0);
+            msgMoney.withdraw = htonl(atoi(money));
             break;
         case '1':
             //預け入れ処理
             printf("預け入れる金額を入力してください > ");
             my_scanf(money, MONEY_DIGIT_SIZE);
-            msgMoney.deposit = atoi(money);
-            msgMoney.withdraw = 0;
+            msgMoney.deposit = htonl(atoi(money));
+            msgMoney.withdraw = htonl(0);
             break;
         case '2':
             // 残高照会
-            msgMoney.deposit = 0;
-            msgMoney.withdraw = 0;
+            msgMoney.deposit = htonl(0);
+            msgMoney.withdraw = htonl(0);
             break;
         default:
             // 終了
@@ -151,6 +151,9 @@ void commun(int sock) {
 
     // 受信処理
     read_certain_bytes(sock, &result, (int)sizeof(int));
+
+    // ネットワークバイトオーダから変換
+    result = ntohl(result);
 
     // 表示処理
     printf("残高は%d円になりました\n", result);
