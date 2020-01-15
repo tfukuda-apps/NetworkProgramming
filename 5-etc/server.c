@@ -5,8 +5,9 @@
 #include <sys/wait.h>
 #include "np_common.h"
 
-
 #define BUF_SIZE 256
+
+void commun(int);
 
 int main(int argc, char *argv[]) {
 	// クライアントの情報を格納するための変数
@@ -73,4 +74,5 @@ int main(int argc, char *argv[]) {
 }
 
 void commun(int sock) {
+	
 }

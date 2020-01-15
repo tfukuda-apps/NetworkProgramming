@@ -6,6 +6,8 @@
 
 #define BUF_SIZE 256
 
+void commun(int);
+
 int main(int argc, char *argv[]) {
     // 実行時にはサーバのIPアドレスとポートを添えなければならない
     if (argc != 3)
@@ -24,4 +26,5 @@ int main(int argc, char *argv[]) {
 }
 
 void commun(int sock) {
+
 }
