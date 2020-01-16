@@ -7,7 +7,7 @@
 
 #define BUF_SIZE 256
 
-void commun(int);
+void commun(int, int, int*);
 
 int main(int argc, char *argv[]) {
 	// クライアントの情報を格納するための変数
@@ -17,24 +17,31 @@ int main(int argc, char *argv[]) {
 	int cliSock;
 	// 子プロセスカウンタ
 	int numChildProc = 0;
+	// pipe用ファイルディスクリプタ
+	int fds[2];
+	// an order of client
+	int numClient = 0;
 
 	// 実行時には待受ソケットに用いるポート番号を添えなければならない
 	if (argc != 2)
 		DieWithError("usage: ./server port");
 
 	// 待ち受け用ソケット
-	int servSock = prepare_server_socket(10001);
+	int servSock = prepare_server_socket(atoi(argv[1]));//10001);
     
 	listen(servSock, 1);
 
-	// 接続要求が来たときの動作
+	int ret_pipe = pipe(fds);
+	if (ret_pipe < 0) {
+		DieWithError("pipe() failed");
+	}
 
 	// 接続要求が来たときの動作
 	while (1) {
 		szClientAddr = sizeof(clientAddress);
 		// 接続要求受け入れ
 		cliSock = accept(servSock, (struct sockaddr *)&clientAddress, &szClientAddr);
-		
+		numClient++;
 		int pid = fork();
 		
 		if (pid < 0) {
@@ -43,7 +50,7 @@ int main(int argc, char *argv[]) {
 		} else if (pid == 0) {
 			// 子プロセス->通信して終了
 			close(servSock);
-			commun(cliSock);
+			commun(cliSock, numClient, fds);
 			close(cliSock);
 			exit(0);
 		} else{
@@ -73,6 +80,20 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void commun(int sock) {
-	
+void commun(int sock, int numClient, int *fds) {
+	char buf[BUF_SIZE];
+	int len_r = 0;
+
+	if (numClient == 1) {
+		// clientは受信しようとしている
+		len_r = recv(fds[0], buf, BUF_SIZE, 0);
+		send(sock, buf, len_r, 0);
+	} else if (numClient == 2) {
+		// clientが送信してくる！
+		len_r = recv(sock, buf, BUF_SIZE, 0);
+		send(fds[1], buf, len_r, 0);
+	}
+
+	close(fds[0]);
+	close(fds[1]);
 }
