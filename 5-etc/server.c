@@ -83,13 +83,16 @@ int main(int argc, char *argv[]) {
 void commun(int sock, int numClient, int *fds) {
 	char buf[BUF_SIZE];
 	int len_r = 0;
+	char *openning_message = "こんにちは！何かメッセージを送ってね！";
 
 	if (numClient == 1) {
 		// clientは受信しようとしている
 		len_r = recv(fds[0], buf, BUF_SIZE, 0);
 		send(sock, buf, len_r, 0);
+		len_r = recv(sock, buf, BUF_SIZE, 0);
 	} else if (numClient == 2) {
-		// clientが送信してくる！
+		// clientは受信しようとしている
+		send(sock, openning_message, strlen(openning_message));
 		len_r = recv(sock, buf, BUF_SIZE, 0);
 		send(fds[1], buf, len_r, 0);
 	}

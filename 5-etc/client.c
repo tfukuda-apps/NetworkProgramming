@@ -26,5 +26,16 @@ int main(int argc, char *argv[]) {
 }
 
 void commun(int sock) {
+    int len_r = 0;
+    char buf[BUF_SIZE];
 
+    // 受信して表示
+    len_r = recv(sock, buf, BUF_SIZE, 0);
+    buf[len_r] = '\0';
+    printf("%-10s: %s\n", "someone", buf);
+
+    // 入力した内容を送信
+    my_scanf(buf, BUF_SIZE);
+    send(sock, buf, strlen(buf), 0);
+    
 }
