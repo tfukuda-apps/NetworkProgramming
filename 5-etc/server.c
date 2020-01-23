@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include "np_common.h"
+#include <string.h>
 
 #define BUF_SIZE 256
 
@@ -87,14 +88,15 @@ void commun(int sock, int numClient, int *fds) {
 
 	if (numClient == 1) {
 		// clientは受信しようとしている
-		len_r = recv(fds[0], buf, BUF_SIZE, 0);
+		len_r = read(fds[0], buf, BUF_SIZE);
+		buf[len_r] = '\0';
 		send(sock, buf, len_r, 0);
 		len_r = recv(sock, buf, BUF_SIZE, 0);
 	} else if (numClient == 2) {
 		// clientは受信しようとしている
-		send(sock, openning_message, strlen(openning_message));
+		send(sock, openning_message, strlen(openning_message),0);
 		len_r = recv(sock, buf, BUF_SIZE, 0);
-		send(fds[1], buf, len_r, 0);
+		write(fds[1], buf, len_r);
 	}
 
 	close(fds[0]);
